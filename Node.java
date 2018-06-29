@@ -17,6 +17,12 @@ public class Node {
     InetAddress forwardingNode;
     long cost;
 
+    public Node(InetAddress ipAddress, InetAddress forwardingNode, long cost) {
+        this.ipAddress = ipAddress;
+        this.forwardingNode = forwardingNode;
+        this.cost = cost;
+    }
+
     public InetAddress getIpAddress() {
         return ipAddress;
     }
