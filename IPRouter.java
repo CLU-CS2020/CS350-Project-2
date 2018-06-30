@@ -94,7 +94,7 @@ public class IPRouter {
                         break;
                 } // end switch
 
-                // *** SENDING THE COMPELTE DATAGRAM PACKET ***
+                // *** SENDING THE COMPLETE DATAGRAM PACKET ***
                 DatagramSocket Socket;
                 Socket = new DatagramSocket();
                 ByteArrayOutputStream outputStream = new ByteArrayOutputStream(); // creates new byte output stream
