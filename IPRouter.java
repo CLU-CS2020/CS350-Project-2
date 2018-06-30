@@ -63,7 +63,7 @@ public class IPRouter {
                 // Make sure to modify the outgoingIPPacket, destinationAddress, and destinationPort before the end of each switch case!
                 //*******************************
                 
-                switch (messageType) { //replace tempVar0 with IPpacket variable
+                switch (messageType) { 
                     case 0: // DoPing
                         DoPing();
                         break;
