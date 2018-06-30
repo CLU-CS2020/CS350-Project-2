@@ -54,7 +54,7 @@ public class IPRouter {
 
                 IPPacket outgoingIPPacket = new IPPacket(-1, null, -1, null); // outgoingIPPacket = This is the IPPacket object we will be sending. All values will need to be modified in the applicable switch case.
 
-                int messageType = incomingIPPacket.getMessageType();
+                int messageType = incomingIPPacket.getMessageType(); // messageType = The type of request we are being asked to do. Used to determine which switch case to use.
 
                 System.out.println(incomingIPPacket.toString());
 
