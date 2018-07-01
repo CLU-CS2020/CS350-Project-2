@@ -58,7 +58,7 @@ public class IPRouter {
 
                 Boolean needToSend = true;
                 
-                sendDetail outgoingPacket = new sendDetail(null, -1, null);
+                SendDetail outgoingPacket = new SendDetail(null, -1, null);
 
                 //*******************************
                 // ALL SWITCH CASES WILL GO HERE
