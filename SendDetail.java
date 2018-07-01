@@ -11,13 +11,13 @@ import java.net.InetAddress;
  *
  * @author jake
  */
-public class sendDetail {
+public class SendDetail {
         
     InetAddress destinationAddress;
     int destinationPort;
     IPPacket outgoingIPPacket;
 
-    public sendDetail(InetAddress destinationAddress, int destinationPort, IPPacket outgoingIPPacket) {
+    public SendDetail(InetAddress destinationAddress, int destinationPort, IPPacket outgoingIPPacket) {
         this.destinationAddress = destinationAddress;
         this.destinationPort = destinationPort;
         this.outgoingIPPacket = outgoingIPPacket;
