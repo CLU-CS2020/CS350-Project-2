@@ -2,6 +2,7 @@ package iprouter;
 
 import java.net.*;
 import java.io.*;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -29,6 +30,9 @@ public class IPRouter {
 
         // create DatagramPacket object for receiving data:
         DatagramPacket incomingMSG = new DatagramPacket(new byte[bufsize], bufsize);
+        
+        // Create Routing Table
+        ArrayList<Node> routingTable = new ArrayList<>();
 
         // *** LISTEN LOOP ***
         while (true) { // read loop
@@ -48,22 +52,19 @@ public class IPRouter {
 
                 int sourcePort = incomingMSG.getPort(); // sourcePort = The port that the source used when sending. Use must use this port when replying to the original sender.
 
-                InetAddress destinationAddress = null; // destinationAddress = The IP address of the node we will be sending the IPPacket object to.
-
-                int destinationPort = -1; // destinationPort = The port of the node we will be sending the IPPacket object to.
-
-                IPPacket outgoingIPPacket = new IPPacket(-1, null, -1, null); // outgoingIPPacket = This is the IPPacket object we will be sending. All values will need to be modified in the applicable switch case.
-
                 int messageType = incomingIPPacket.getMessageType(); // messageType = The type of request we are being asked to do. Used to determine which switch case to use.
 
                 System.out.println(incomingIPPacket.toString());
+
+                Boolean needToSend = true;
+                
+                sendDetail outgoingPacket = new sendDetail(null, -1, null);
 
                 //*******************************
                 // ALL SWITCH CASES WILL GO HERE
                 // Make sure to modify the outgoingIPPacket, destinationAddress, and destinationPort before the end of each switch case!
                 //*******************************
-                
-                switch (messageType) { 
+                switch (messageType) {
                     case 0: // DoPing
                         DoPing();
                         break;
@@ -82,6 +83,7 @@ public class IPRouter {
 
                     case 4: // RouterTable
                         RouterTable();
+                        needToSend = false;
                         break;
 
                     case 5: // Message
@@ -90,19 +92,21 @@ public class IPRouter {
                     default:
                         System.out.println("Something went wrong. "
                                 + "(switch default execute)");
-
+                        needToSend = false;
                         break;
                 } // end switch
 
                 // *** SENDING THE COMPLETE DATAGRAM PACKET ***
-                DatagramSocket Socket;
-                Socket = new DatagramSocket();
-                ByteArrayOutputStream outputStream = new ByteArrayOutputStream(); // creates new byte output stream
-                ObjectOutputStream os = new ObjectOutputStream(outputStream);          // creates new out stream
-                os.writeObject(outgoingIPPacket); // writes new client to send message
-                byte[] b = outputStream.toByteArray(); // writes bytes to array
-                DatagramPacket msg = new DatagramPacket(b, b.length, destinationAddress, destinationPort); // creates new datagram to send with coordinates
-                Socket.send(msg); // sends message
+                if (needToSend = true) {
+                    DatagramSocket Socket;
+                    Socket = new DatagramSocket();
+                    ByteArrayOutputStream outputStream = new ByteArrayOutputStream(); // creates new byte output stream
+                    ObjectOutputStream os = new ObjectOutputStream(outputStream);          // creates new out stream
+                    os.writeObject(outgoingPacket.getOutgoingIPPacket()); // writes new client to send message
+                    byte[] b = outputStream.toByteArray(); // writes bytes to array
+                    DatagramPacket msg = new DatagramPacket(b, b.length, outgoingPacket.getDestinationAddress(), outgoingPacket.getDestinationPort()); // creates new datagram to send with coordinates
+                    Socket.send(msg); // sends message
+                }
 
             } catch (SocketTimeoutException ste) {    // receive() timed out
                 System.err.println("Response timed out!");
@@ -112,7 +116,7 @@ public class IPRouter {
             }
         }
     }
-    
+
     public static void DoPing() {
         // insert code here & needed parameters.
     }
@@ -121,34 +125,34 @@ public class IPRouter {
      *
      */
     public static void DoExchange() {
-         // insert code here & needed parameters.
+        // insert code here & needed parameters.
     }
 
     /**
      *
      */
     public static void Ping() {
-         // insert code here & needed parameters.
+        // insert code here & needed parameters.
     }
 
     /**
      *
      */
     public static void PingReply() {
-         // insert code here & needed parameters.
+        // insert code here & needed parameters.
     }
 
     /**
      *
      */
     public static void RouterTable() {
-         // insert code here & needed parameters.
+        // insert code here & needed parameters.
     }
 
     /**
      *
      */
     public static void Message() {
-         // insert code here & needed parameters.
+        // insert code here & needed parameters.
     }
 }
