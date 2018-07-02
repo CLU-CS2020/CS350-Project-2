@@ -74,7 +74,7 @@ public class IPRouter {
                         break;
 
                     case 2: // ping
-                        Ping();
+                        Ping(sourceAddress, sourcePort, incomingIPPacket);
                         break;
 
                     case 3: // PingReply
@@ -130,9 +130,22 @@ public class IPRouter {
 
     /**
      *
+     * @param sourceAddress
+     * @return 
      */
-    public static void Ping() {
-        // insert code here & needed parameters.
+    public static SendDetail Ping(InetAddress sourceAddress, int sourcePort, IPPacket incomingIPPacket) {
+        // insert code here & needed parameters
+        InetAddress destinationAddress = sourceAddress; //sets destination address to source for reply
+        int destinationPort = sourcePort; //sets destination port to source port for reply
+        IPPacket outgoingIPPacket = new IPPacket(3, destinationAddress, 0, null); //defaults outgoing message to "PingReply" and creates IPPacket with null cost and message
+        
+        SendDetail sd = new SendDetail(destinationAddress, destinationPort, outgoingIPPacket);// creates new SendDetail
+       
+        return sd;
+       //
+       
+       
+              
     }
 
     /**
