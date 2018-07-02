@@ -45,6 +45,7 @@ public class IPRouter {
                 ByteArrayInputStream in = new ByteArrayInputStream(data);
                 ObjectInputStream is = new ObjectInputStream(in);
 
+                
                 // *** USE VARIABLES BELOW FOR METHODS ***
                 IPPacket incomingIPPacket = (IPPacket) is.readObject(); // incomingIPPacket = the IP Packet object sent by the source node.
 
@@ -58,6 +59,7 @@ public class IPRouter {
 
                 Boolean needToSend = true;
                 
+
                 SendDetail outgoingPacket = new SendDetail(null, -1, null);
 
                 //*******************************
@@ -73,6 +75,7 @@ public class IPRouter {
                         DoExchange();
                         break;
 
+<<<<<<< HEAD
                     case 2: // ping
                         Ping(sourceAddress, sourcePort, incomingIPPacket);
                         break;
@@ -116,6 +119,7 @@ public class IPRouter {
             }
         }
     }
+<<<<<<< HEAD
 
     public static void DoPing() {
         // insert code here & needed parameters.
@@ -168,4 +172,6 @@ public class IPRouter {
     public static void Message() {
         // insert code here & needed parameters.
     }
+=======
+>>>>>>> e4cc3391b775d17e2c9108f09c550046f82a9c1c
 }
