@@ -112,7 +112,7 @@ public class IPRouter {
                                 System.out.println("Sending Node " + randomRow.getIpAddress() + " to " + 
                                         randomDestination.getIpAddress() + ".");
                                 
-                                IPPacket outgoingIPPacket = new IPPacket (2, randomRow.getIpAddress(), randomRow.getCost(),
+                                IPPacket outgoingIPPacket = new IPPacket (4, randomRow.getIpAddress(), randomRow.getCost(),
                                         "DoExchange Node from the cool group");
                                 outgoingPacket = new SendDetail (randomDestination.getIpAddress(), 4445, outgoingIPPacket);
                             }
