@@ -89,7 +89,40 @@ public class IPRouter {
                         needToSend = true;
                         break;
 
-                    case 1: // DoExchange
+                    // DoExchange
+                    case 1:
+                        if (routingTable.size() == 0) {
+                            System.out.println("Routing table is empty, nothing to do");
+                            break;
+                        }
+                        //*** inserted  from Luis' code. ***
+                        //random Destination "D"
+                        RoutingTableEntry randomDestination =
+                                getRandomRoutingTableEntry(routingTable, -1);
+                        Node randomD = randomDestination.getResult();
+
+                        //random Row "R", set ignore index to that of D, so that D!=R
+                        RoutingTableEntry randomRow =
+                                getRandomRoutingTableEntry(routingTable, randomDestination.getIndex());
+
+                        Node randomR = randomRow.getResult();
+
+                        if (randomD.getIpAddress().equals(randomR.ipAddress)) {
+                            System.out.println("There is only one record in routing table.");
+                        }
+                        System.out.println("Sending DoExchange  to " + randomD.getIpAddress
+                                ());
+                        //create packet with "relevant information" for random row "R"
+                        IPPacket packet = new
+                                IPPacket(1, randomR.getIpAddress(),
+                                randomR.getCost(), "DoExchange");
+
+                        //send to random destination "D"
+                        SendDetail
+                                sendDetail =
+                                new SendDetail(randomD.getIpAddress(), 4445, packet);
+                        transmitMessage(sendDetail);
+
                         break;
 
                     case 2: // Ping (Replying to a ping sent by another node)
