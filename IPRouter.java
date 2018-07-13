@@ -124,7 +124,7 @@ public class IPRouter {
                         needToSend = true;
                         break;
 
- /*case 3: // PingReply (Adding the information from a ping reply to our table, including the final cost)
+                    case 3: // PingReply (Adding the information from a ping reply to our table, including the final cost)
                         for (Node node : routingTable) {
                             if (node.getIpAddress() != sourceAddress) {
                                 Node newNode = new Node(sourceAddress, sourceAddress, -1);
@@ -137,7 +137,7 @@ public class IPRouter {
                         System.out.println("Ping time: " + (TotalTime + "ms"));
                         //FOR LOOP TO GET IP ADDRESS AND UPDATE COST
                         needToSend = false;
-                        break;*/
+                        break;
                         
                     case 4: // RouterTable
                         for (Node node : routingTable) {
