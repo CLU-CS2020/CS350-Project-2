@@ -119,10 +119,10 @@ public class IPRouter {
                         }
                         break;
 
-                    /*case 2: 
+                    case 2: // Ping
                         outgoingPacket = Ping(sourceAddress, sourcePort, incomingIPPacket);
                         needToSend = true;
-                        break;*/
+                        break;
 
  /*case 3: // PingReply (Adding the information from a ping reply to our table, including the final cost)
                         for (Node node : routingTable) {
