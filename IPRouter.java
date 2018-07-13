@@ -7,7 +7,7 @@ import java.util.GregorianCalendar;
 
 public class IPRouter {
 
-    static public int destport = 4445;
+    static public int destport = 5432;
     static public int bufsize = 512;
     static public final int timeout = 15000; // time in milliseconds
     static public final int UNIVERSAL_PORT = 5432;
@@ -33,6 +33,12 @@ public class IPRouter {
 
         // Create Routing Table
         ArrayList<Node> routingTable = new ArrayList<>();
+        Node kevinsNode = new Node((InetAddress.getByName("10.100.31.74")), (InetAddress.getByName("10.100.31.74")), 500);
+        Node mileysNode = new Node((InetAddress.getByName("10.100.30.176")), (InetAddress.getByName("10.100.30.176")), 500);
+        Node jakesNode = new Node((InetAddress.getByName("10.100.31.73")), (InetAddress.getByName("10.100.31.73")), 500);
+        Node ryansNode = new Node((InetAddress.getByName("10.100.31.93")), (InetAddress.getByName("10.100.31.93")), 500);
+        routingTable.add(kevinsNode);
+        routingTable.add(ryansNode);
 
         long startTime = -1;
 
@@ -63,7 +69,7 @@ public class IPRouter {
                 Boolean needToSend = true;
 
                 SendDetail outgoingPacket = new SendDetail(null, -1, null);
-                
+
                 //*******************************
                 // ALL SWITCH CASES WILL GO HERE
                 // Make sure to modify the outgoingIPPacket, destinationAddress, and destinationPort before the end of each switch case!
@@ -89,6 +95,7 @@ public class IPRouter {
                         break;*/
 
                     case 1: // Timer / DoExchange
+
                         try {
                             int randomD = -1;
                             int randomR = -1;
@@ -96,18 +103,18 @@ public class IPRouter {
                                 System.out.println("No known destinations in routing table.");
                             } else {
                                 /*
-                                On receipt of a DoExchange message, the router should choose a random 
-                                destination, D, from the router table, and a random row, R, in the router 
-                                table, and send D a RouterTable message containing the relevant parts of R.
+                                    On receipt of a DoExchange message, the router should choose a random 
+                                    destination, D, from the router table, and a random row, R, in the router 
+                                    table, and send D a RouterTable message containing the relevant parts of R.
                                  */
                                 randomR = (int) (Math.random() * routingTable.size());
                                 randomD = (int) (Math.random() * routingTable.size());
                                 Node randomRow = routingTable.get(randomR);
                                 Node randomDestination = routingTable.get(randomD);
-                                while (randomRow.getIpAddress() == randomDestination.getIpAddress()) {
-                                    randomD = (int) (Math.random() * routingTable.size());
-                                    randomDestination = routingTable.get(randomD);
-                                }
+                                /*while (randomRow.getIpAddress() == randomDestination.getIpAddress()) {
+                                        randomD = (int) (Math.random() * routingTable.size());
+                                        randomDestination = routingTable.get(randomD);
+                                    }*/
                                 System.out.println("Sending Node " + randomRow.getIpAddress() + " to "
                                         + randomDestination.getIpAddress() + ".");
 
@@ -120,58 +127,56 @@ public class IPRouter {
                         }
                         break;
 
-                    case 2: // Ping
+                    case 2:
                         outgoingPacket = Ping(sourceAddress, sourcePort, incomingIPPacket);
                         needToSend = true;
                         break;
 
                     case 3: // PingReply (Adding the information from a ping reply to our table, including the final cost)
-                        for (Node node : routingTable) {
-                            if (node.getIpAddress() != sourceAddress) {
-                                Node newNode = new Node(sourceAddress, sourceAddress, -1);
-                                routingTable.add(newNode);
-                                System.out.println("We received a ping reply from a node we didn't request it from, we added them anyway! ^_^");
-                            }
-                        }
                         finishTime = new GregorianCalendar().getTimeInMillis();
                         long TotalTime = finishTime - startTime;
                         System.out.println("Ping time: " + (TotalTime + "ms"));
                         //FOR LOOP TO GET IP ADDRESS AND UPDATE COST
                         needToSend = false;
                         break;
-                        
                     case 4: // RouterTable
-                        for (Node node : routingTable) {
-                            if (node.getIpAddress() != sourceAddress) {
-                                Node newNode = new Node(sourceAddress, sourceAddress, -1);
-                                routingTable.add(newNode);
+                        if (incomingIPPacket.getAddress() == (InetAddress.getByName("10.100.31.73"))) {
+                            System.out.println("Ignoring entry for self");
+                        } else {
+                            System.out.println("Printing existing routing table:");
+                            for (Node nodeOld : routingTable) {
+                                System.out.println(nodeOld);
                             }
-                        }
-                        for (Node node : routingTable) {
-                            if (node.getIpAddress() == incomingIPPacket.getAddress()) {
-                                
-                                if(incomingIPPacket.getCost() > node.getCost()) {
-                                    System.out.println("Ignoring router table entry as cost is higher than existing record!");
-                                } else {
-                                    node.setForwardingNode(sourceAddress);
-                                    node.setCost(incomingIPPacket.getCost());
+                            boolean needToAdd = true;
+                            for (Node node : routingTable) {
+                                if (node.getIpAddress() == incomingIPPacket.getAddress()) {
+
+                                    if (incomingIPPacket.getCost() > node.getCost()) {
+                                        System.out.println("Ignoring router table entry as cost is higher than existing record!");
+                                    } else {
+                                        node.setForwardingNode(sourceAddress);
+                                        node.setCost(incomingIPPacket.getCost());
+                                        System.out.println("Printing new routing table:");
+                                        for (Node nodeNew : routingTable) {
+                                            System.out.println(nodeNew);
+                                        }
+                                    }
+                                    needToAdd = false;
                                 }
-                                
-                            } else {
+                            }
+                            if (needToAdd) {
                                 Node newEntry = new Node(incomingIPPacket.getAddress(), sourceAddress, incomingIPPacket.getCost());
                                 routingTable.add(newEntry);
+                                System.out.println("Printing new routing table:");
+                                for (Node nodeNew : routingTable) {
+                                    System.out.println(nodeNew);
+                                }
                             }
                         }
                         needToSend = false;
                         break;
 
                     case 5: // Message
-                        for (Node node : routingTable) {
-                            if (node.getIpAddress() != sourceAddress) {
-                                Node newNode = new Node(sourceAddress, sourceAddress, -1);
-                                routingTable.add(newNode);
-                            }
-                        }
                         System.out.println("Received Message from " + sourceAddress);
                         InetAddress destAddress = incomingIPPacket.getAddress(); //gets destination address from IPPacket
                         InetAddress nextHop = null; //address to forward the IPPacket to
@@ -192,7 +197,7 @@ public class IPRouter {
                                 + "(switch default execute)");
                         needToSend = false;
                         break;
-                        
+
                 } // end switch
 
                 // *** SENDING THE COMPLETE DATAGRAM PACKET ***
@@ -203,7 +208,7 @@ public class IPRouter {
                     ObjectOutputStream os = new ObjectOutputStream(outputStream);          // creates new out stream
                     os.writeObject(outgoingPacket.getOutgoingIPPacket()); // writes new client to send message
                     byte[] b = outputStream.toByteArray(); // writes bytes to array
-                    DatagramPacket msg = new DatagramPacket(b, b.length, outgoingPacket.getDestinationAddress(), outgoingPacket.getDestinationPort()); // creates new datagram to send with coordinates
+                    DatagramPacket msg = new DatagramPacket(b, b.length, outgoingPacket.getDestinationAddress(), UNIVERSAL_PORT); // creates new datagram to send with coordinates
                     Socket.send(msg); // sends message
                     System.out.println(outgoingPacket.getOutgoingIPPacket().toString());
                 }
