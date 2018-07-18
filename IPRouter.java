@@ -75,7 +75,7 @@ public class IPRouter {
                 // Make sure to modify the outgoingIPPacket, destinationAddress, and destinationPort before the end of each switch case!
                 //*******************************
                 switch (messageType) {
-                    /*case 0: // DoPing (Send a ping to a random node from the routingTable arraylist and mark the start time)
+                    case 0: // DoPing (Send a ping to a random node from the routingTable arraylist and mark the start time)
                         try {
                             int randomIndex = -1;
                             if (routingTable.isEmpty()) {
@@ -92,7 +92,7 @@ public class IPRouter {
                             System.out.println("Exception:" + e.getMessage());
                         }
                         needToSend = true;
-                        break;*/
+                        break;
 
                     case 1: // Timer / DoExchange
 
@@ -133,12 +133,20 @@ public class IPRouter {
                         break;
 
                     case 3: // PingReply (Adding the information from a ping reply to our table, including the final cost)
-                        finishTime = new GregorianCalendar().getTimeInMillis();
-                        long TotalTime = finishTime - startTime;
-                        System.out.println("Ping time: " + (TotalTime + "ms"));
-                        //FOR LOOP TO GET IP ADDRESS AND UPDATE COST
-                        needToSend = false;
-                        break;
+                       for (Node node : routingTable) {
+                             if (node.getIpAddress() != sourceAddress) {
+                                 Node newNode = new Node(sourceAddress, sourceAddress, -1);
+                                 routingTable.add(newNode);
+                                 System.out.println("We received a ping reply from a node we didn't request it from, we added them anyway! ^_^");
+                             }
+                         }
+                         finishTime = new GregorianCalendar().getTimeInMillis();
+                         long TotalTime = finishTime - startTime;
+                         System.out.println("Ping time: " + (TotalTime + "ms"));
+                         //FOR LOOP TO GET IP ADDRESS AND UPDATE COST
+                         needToSend = false;
+                         break;
+
                     case 4: // RouterTable
                         if (incomingIPPacket.getAddress() == (InetAddress.getByName("10.100.31.73"))) {
                             System.out.println("Ignoring entry for self");
