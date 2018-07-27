@@ -12,7 +12,6 @@ public class IPRouter {
     static public final int timeout = 15000; // time in milliseconds
     static public final int UNIVERSAL_PORT = 5432;
 
-
     static public void main(String args[]) throws UnknownHostException {
 
         DatagramSocket s;               // UDP uses DatagramSockets
@@ -39,8 +38,8 @@ public class IPRouter {
         Node kevinsNode = new Node((InetAddress.getByName("10.100.31.74")), (InetAddress.getByName("10.100.31.74")),
                 500);
         Node mileysNode = new Node((InetAddress.getByName("10.100.30.176")), (InetAddress.getByName("10.100.30.176")), 500);
-        Node jakesNode = new Node((InetAddress.getByName("10.100.31.73")), (InetAddress.getByName("10.100.31.73")),  500);
-        Node ryansNode = new Node((InetAddress.getByName("10.100.31.93")), (InetAddress.getByName("10.100.31.93")),  500);
+        Node jakesNode = new Node((InetAddress.getByName("10.100.31.73")), (InetAddress.getByName("10.100.31.73")), 500);
+        Node ryansNode = new Node((InetAddress.getByName("10.100.31.93")), (InetAddress.getByName("10.100.31.93")), 500);
         routingTable.add(kevinsNode);
         routingTable.add(ryansNode);
 
@@ -61,7 +60,6 @@ public class IPRouter {
                 ObjectInputStream is = new ObjectInputStream(in);
 
                 // IPPacket(InetAddress source, InetAddress dest, int messageType, InetAddress address, long cost, String message)
-                
                 // *** USE VARIABLES BELOW FOR METHODS ***
                 IPPacket incomingIPPacket = (IPPacket) is.readObject(); // incomingIPPacket = the IP Packet object sent by the source node.
 
@@ -82,20 +80,17 @@ public class IPRouter {
                 // ALL SWITCH CASES WILL GO HERE
                 // Make sure to modify the outgoingIPPacket, destinationAddress, and destinationPort before the end of each switch case!
                 // 0 = Timer, 1 = DoExchange (not using anymore), 2 = Ping, 3 = PingReply, 4 = RouterTable, 5 = Message
-                
                 // On receipt of a Timer message, the router should: 
                 //    1. choose a random destination, D, from the router table, and a random row, R, in the router table, and send D a RouterTable message containing the relevant parts of R.
                 //    2. remember the current time, choose a random neighbor, N, from the router table, and send them a Ping message.
-                
                 // On receipt of a Ping message, the router should reply to the sender with a PingReply message.
-                
                 // On receipt of a PingReply or RouterTable message, the router should update its router table.
-                
                 // On receipt of a Message message, M, the router should forward M to the correct next hop according to the router table.
                 //*******************************
                 switch (messageType) {
                     case 0: // Timer / DoExchange
 
+                        // ROUTER MESSAGE
                         try {
                             int randomD = -1;
                             int randomR = -1;
@@ -115,57 +110,54 @@ public class IPRouter {
                                         + randomDestination.getIpAddress() + ".");
 
                                 IPPacket outgoingIPPacket = new IPPacket(myIP,
-                                        randomDestination.getIpAddress(),4, randomRow.getIpAddress() ,
-                                        randomRow.getCost(),"Sending random table entry. ");
-                                outgoingPacket = new SendDetail(randomDestination.getIpAddress(), UNIVERSAL_PORT, outgoingIPPacket);
+                                        randomDestination.getIpAddress(), 4, randomRow.getIpAddress(),
+                                        randomRow.getCost(), "Sending random table entry. ");
+                                outgoingPacket = new SendDetail(outgoingIPPacket.dest, UNIVERSAL_PORT, outgoingIPPacket);
+                                needToSend = true;
+                            }
+                        } catch (Exception e) {
+                            System.out.println("Exception:" + e.getMessage());
+                        }
+
+                        // PING MESSAGE
+                        try {
+                            int randomD = -1;
+                            if (routingTable.isEmpty()) {
+                                System.out.println("No known destinations in routing table.");
+                            } else {
+                                startTime = new GregorianCalendar().getTimeInMillis();
+                                randomD = (int) (Math.random() * routingTable.size());
+                                Node randomDestination = routingTable.get(randomD);
+                                IPPacket outgoingIPPacket = new IPPacket(myIP,
+                                        randomDestination.getIpAddress(), 2, null,
+                                        -1, "Ping message sent");
+                                Ping(outgoingIPPacket.dest, outgoingIPPacket);
                             }
                         } catch (Exception e) {
                             System.out.println("Exception:" + e.getMessage());
                         }
                         break;
-                    
-//                    case 1: // DoPing / DoExchange (Send a ping to a random node from the routingTable arraylist and mark the start time)
-//                        try {
-//                            int randomIndex = -1;
-//                            if (routingTable.isEmpty()) {
-//                                System.out.println("No known destinations in routing table.");
-//                            } else {
-//                                randomIndex = (int) (Math.random() * routingTable.size());
-//                                Node randomNode = routingTable.get(randomIndex);
-//                                System.out.println("Sending Ping Request to " + randomNode.getIpAddress());
-//                                startTime = new GregorianCalendar().getTimeInMillis();
-//                                IPPacket outgoingIPPacket = new IPPacket(myIP,
-//                                        "This " +
-//                                        "is a ping."
-//                                outgoingPacket = new SendDetail(randomNode.getIpAddress(), 5432, outgoingIPPacket);
-//                            }
-//                        } catch (Exception e) {
-//                            System.out.println("Exception:" + e.getMessage());
-//                        }
-//                        needToSend = true;
-//                        break;
-
-                    
 
                     case 2: // Ping
-                        outgoingPacket = Ping(sourceAddress, sourcePort, incomingIPPacket);
+                        IPPacket outgoingIPPacket = new IPPacket(myIP, sourceAddress, 3, null, -1, "Replying to your ping"); //defaults outgoing message to "PingReply" and creates IPPacket with null cost and message
+                        outgoingPacket = new SendDetail(outgoingIPPacket.getDest(), UNIVERSAL_PORT, outgoingIPPacket);
                         needToSend = true;
                         break;
 
                     case 3: // PingReply (Adding the information from a ping reply to our table, including the final cost)
-                       for (Node node : routingTable) {
-                             if (node.getIpAddress() != sourceAddress) {
-                                 Node newNode = new Node(sourceAddress, sourceAddress, -1);
-                                 routingTable.add(newNode);
-                                 System.out.println("We received a ping reply from a node we didn't request it from, we added them anyway! ^_^");
-                             }
-                         }
-                         finishTime = new GregorianCalendar().getTimeInMillis();
-                         long TotalTime = finishTime - startTime;
-                         System.out.println("Ping time: " + (TotalTime + "ms"));
-                         //FOR LOOP TO GET IP ADDRESS AND UPDATE COST
-                         needToSend = false;
-                         break;
+                        for (Node node : routingTable) {
+                            if (node.getIpAddress() != sourceAddress) {
+                                Node newNode = new Node(sourceAddress, sourceAddress, -1);
+                                routingTable.add(newNode);
+                                System.out.println("We received a ping reply from a node we didn't request it from, we added them anyway! ^_^");
+                            }
+                        }
+                        finishTime = new GregorianCalendar().getTimeInMillis();
+                        long TotalTime = finishTime - startTime;
+                        System.out.println("Ping time: " + (TotalTime + "ms"));
+                        //FOR LOOP TO GET IP ADDRESS AND UPDATE COST
+                        needToSend = false;
+                        break;
 
                     case 4: // RouterTable
                         if (incomingIPPacket.address == (InetAddress.getByName("10.100.31.73"))) {
@@ -206,7 +198,7 @@ public class IPRouter {
 
                     case 5: // Message
                         System.out.println("Received Message from " + sourceAddress);
-                        InetAddress destAddress =  incomingIPPacket.dest; //gets destination address from IPPacket
+                        InetAddress destAddress = incomingIPPacket.dest; //gets destination address from IPPacket
                         InetAddress nextHop = null; //address to forward the IPPacket to
                         // compare destination address to nodes in routingTabe and set destination address to nexthop
                         for (Node node : routingTable) {
@@ -250,5 +242,16 @@ public class IPRouter {
         }
     }
 
+    static public void Ping(InetAddress destinationAddress, IPPacket outgoingIPPacket) throws SocketException, IOException {
+        DatagramSocket Socket;
+        Socket = new DatagramSocket();
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream(); // creates new byte output stream
+        ObjectOutputStream os = new ObjectOutputStream(outputStream);          // creates new out stream
+        os.writeObject(outgoingIPPacket); // writes new client to send message
+        byte[] b = outputStream.toByteArray(); // writes bytes to array
+        DatagramPacket msg = new DatagramPacket(b, b.length, destinationAddress, UNIVERSAL_PORT); // creates new datagram to send with coordinates
+        Socket.send(msg); // sends message
+        System.out.println(outgoingIPPacket.toString());
+    }
 
 }
