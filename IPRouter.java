@@ -153,9 +153,17 @@ public class IPRouter {
                             }
                         }
                         finishTime = new GregorianCalendar().getTimeInMillis();
-                        long TotalTime = finishTime - startTime;
-                        System.out.println("Ping time: " + (TotalTime + "ms"));
-                        //FOR LOOP TO GET IP ADDRESS AND UPDATE COST
+                        long totalTime = finishTime - startTime;
+                        System.out.println("Ping reply received from " + sourceAddress + ". Ping Reply time: " + (totalTime + " ms."));
+                        for (Node node : routingTable) {
+                            if (node.getIpAddress() == incomingIPPacket.address) {
+                                node.setCost(totalTime);
+                                System.out.println("Updated " + sourceAddress + " cost to " + node.getCost() + " ms.");
+                                for (Node nodeNew : routingTable) {
+                                    System.out.println(nodeNew);
+                                }
+                            }
+                        }
                         needToSend = false;
                         break;
 
