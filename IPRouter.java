@@ -167,7 +167,7 @@ public class IPRouter {
                         break;
 
                     case 4: // RouterTable
-                        if (incomingIPPacket.address == (InetAddress.getByName("10.100.31.73"))) {
+                        if (incomingIPPacket.address == myIP) {
                             System.out.println("Ignoring entry for self");
                         } else {
                             System.out.println("Printing existing routing table:");
