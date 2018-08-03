@@ -41,11 +41,13 @@ public class IPRouter {
         Node jakesNode = new Node((InetAddress.getByName("10.100.16.99")), (InetAddress.getByName("10.100.16.99")), 500);
         Node ryansNode = new Node((InetAddress.getByName("10.100.22.95")), (InetAddress.getByName("10.100.22.95")), 500);
         routingTable.add(kevinsNode);
-        routingTable.add(ryansNode);
+        routingTable.add(mileysNode);
 
         long startTime = -1;
 
         long finishTime = -1;
+        
+        InetAddress pingToAddress = InetAddress.getByName("00.00.00.00");
 
         // *** LISTEN LOOP ***
         while (true) {
@@ -63,7 +65,7 @@ public class IPRouter {
                 // *** USE VARIABLES BELOW FOR METHODS ***
                 IPPacket incomingIPPacket = (IPPacket) is.readObject(); // incomingIPPacket = the IP Packet object sent by the source node.
 
-                InetAddress sourceAddress = incomingMSG.getAddress(); // sourceAddress = The IP address of the node that sent the IP Packet object. Must use this address when replying to the original sender.
+                InetAddress sourceAddress = incomingIPPacket.getSource(); // sourceAddress = The IP address of the node that sent the IP Packet object. Must use this address when replying to the original sender.
 
                 int sourcePort = incomingMSG.getPort(); // sourcePort = The port that the source used when sending. Use must use this port when replying to the original sender.
 
@@ -73,8 +75,6 @@ public class IPRouter {
                 System.out.println(incomingIPPacket.toString());
 
                 Boolean needToSend = true;
-
-                InetAddress pingToAddress = InetAddress.getByName("00.00.00.00");
 
                 SendDetail outgoingPacket = new SendDetail(null, -1, null);
 
@@ -148,7 +148,7 @@ public class IPRouter {
                         break;
 
                     case 3: // Receive PingReply (Adding the information from a ping reply to our table, including the final cost)
-                        if (sourceAddress != pingToAddress) {
+                        if (incomingIPPacket.getSource() != sourceAddress) {
                             System.out.println("We received a ping reply from a node we didn't request it from!");
                             break;
                         }
