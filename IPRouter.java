@@ -35,11 +35,10 @@ public class IPRouter {
         ArrayList<Node> routingTable = new ArrayList<>();
         // public Node(InetAddress ipAddress, InetAddress forwardingNode, InetAddress address, long cost)
         // #EDIT
-        Node kevinsNode = new Node((InetAddress.getByName("10.100.31.74")), (InetAddress.getByName("10.100.31.74")),
-                500);
-        Node mileysNode = new Node((InetAddress.getByName("10.100.30.176")), (InetAddress.getByName("10.100.30.176")), 500);
-        Node jakesNode = new Node((InetAddress.getByName("10.100.31.73")), (InetAddress.getByName("10.100.31.73")), 500);
-        Node ryansNode = new Node((InetAddress.getByName("10.100.31.93")), (InetAddress.getByName("10.100.31.93")), 500);
+        Node kevinsNode = new Node((InetAddress.getByName("10.100.19.18")), (InetAddress.getByName("10.100.19.18")), 500);
+        Node mileysNode = new Node((InetAddress.getByName("10.100.23.147")), (InetAddress.getByName("10.100.23.147")), 500);
+        Node jakesNode = new Node((InetAddress.getByName("10.100.16.99")), (InetAddress.getByName("10.100.16.99")), 500);
+        Node ryansNode = new Node((InetAddress.getByName("10.100.22.95")), (InetAddress.getByName("10.100.22.95")), 500);
         routingTable.add(kevinsNode);
         routingTable.add(ryansNode);
 
@@ -50,7 +49,7 @@ public class IPRouter {
         // *** LISTEN LOOP ***
         while (true) {
             try {
-                InetAddress myIP = InetAddress.getByName("10.100.31.74");
+                InetAddress myIP = InetAddress.getByName("localhost");
                 incomingMSG.setLength(bufsize);
                 s.receive(incomingMSG);
                 System.err.println("message from <"
