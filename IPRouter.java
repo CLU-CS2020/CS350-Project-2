@@ -36,6 +36,7 @@ public class IPRouter {
         // public Node(InetAddress ipAddress, InetAddress forwardingNode, InetAddress address, long cost)
         // #EDIT
         Node kevinsNode = new Node((InetAddress.getByName("10.100.19.18")), (InetAddress.getByName("10.100.19.18")), 500);
+        Node luisNode = new Node((InetAddress.getByName("10.100.21.136")), (InetAddress.getByName("10.100.21.136")), 500);
         Node mileysNode = new Node((InetAddress.getByName("10.100.23.147")), (InetAddress.getByName("10.100.23.147")), 500);
         Node jakesNode = new Node((InetAddress.getByName("10.100.16.99")), (InetAddress.getByName("10.100.16.99")), 500);
         Node ryansNode = new Node((InetAddress.getByName("10.100.22.95")), (InetAddress.getByName("10.100.22.95")), 500);
@@ -49,7 +50,7 @@ public class IPRouter {
         // *** LISTEN LOOP ***
         while (true) {
             try {
-                InetAddress myIP = InetAddress.getByName("localhost");
+                InetAddress myIP = InetAddress.getByName("10.100.16.99");
                 incomingMSG.setLength(bufsize);
                 s.receive(incomingMSG);
                 System.err.println("message from <"
@@ -72,6 +73,8 @@ public class IPRouter {
                 System.out.println(incomingIPPacket.toString());
 
                 Boolean needToSend = true;
+
+                InetAddress pingToAddress = InetAddress.getByName("00.00.00.00");
 
                 SendDetail outgoingPacket = new SendDetail(null, -1, null);
 
@@ -131,25 +134,23 @@ public class IPRouter {
                                         randomDestination.getIpAddress(), 2, null,
                                         -1, "Ping message sent");
                                 Ping(outgoingIPPacket.dest, outgoingIPPacket);
+                                pingToAddress = outgoingIPPacket.dest;
                             }
                         } catch (Exception e) {
                             System.out.println("Exception:" + e.getMessage());
                         }
                         break;
 
-                    case 2: // Ping
+                    case 2: // Receive Ping
                         IPPacket outgoingIPPacket = new IPPacket(myIP, sourceAddress, 3, null, -1, "Replying to your ping"); //defaults outgoing message to "PingReply" and creates IPPacket with null cost and message
                         outgoingPacket = new SendDetail(outgoingIPPacket.getDest(), UNIVERSAL_PORT, outgoingIPPacket);
                         needToSend = true;
                         break;
 
-                    case 3: // PingReply (Adding the information from a ping reply to our table, including the final cost)
-                        for (Node node : routingTable) {
-                            if (node.getIpAddress() != sourceAddress) {
-                                Node newNode = new Node(sourceAddress, sourceAddress, -1);
-                                routingTable.add(newNode);
-                                System.out.println("We received a ping reply from a node we didn't request it from, we added them anyway! ^_^");
-                            }
+                    case 3: // Receive PingReply (Adding the information from a ping reply to our table, including the final cost)
+                        if (sourceAddress != pingToAddress) {
+                            System.out.println("We received a ping reply from a node we didn't request it from!");
+                            break;
                         }
                         finishTime = new GregorianCalendar().getTimeInMillis();
                         long totalTime = finishTime - startTime;
@@ -175,21 +176,26 @@ public class IPRouter {
                                 System.out.println(nodeOld);
                             }
                             boolean needToAdd = true;
+                            boolean needToUpdate = false;
+                            Node nodeToUpdate = null;
                             for (Node node : routingTable) {
                                 if (node.getIpAddress() == incomingIPPacket.address) {
-
                                     if (incomingIPPacket.cost > node.getCost()) {
                                         System.out.println("Ignoring router table entry as cost is higher than existing record!");
                                     } else {
-                                        node.setForwardingNode(sourceAddress);
-                                        node.setCost(incomingIPPacket.cost);
-                                        System.out.println("Printing new routing table:");
-                                        for (Node nodeNew : routingTable) {
-                                            System.out.println(nodeNew);
-                                        }
+                                        nodeToUpdate = node;
+                                        needToUpdate = true;
                                     }
                                     needToAdd = false;
                                 }
+                            }
+                            if (needToUpdate) {
+                                nodeToUpdate.setForwardingNode(sourceAddress);
+                                nodeToUpdate.setCost(incomingIPPacket.cost);
+                                System.out.println("Printing new routing table:");
+                                for (Node nodeNew : routingTable) {
+                                            System.out.println(nodeNew);
+                                        }
                             }
                             if (needToAdd) {
                                 Node newEntry = new Node(incomingIPPacket.address, sourceAddress, incomingIPPacket.cost);
