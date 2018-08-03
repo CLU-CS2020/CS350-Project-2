@@ -13,17 +13,10 @@ import java.net.InetAddress;
  */
 public class Node {
     
-    InetAddress ipAddress;
+    InetAddress ipAddress; //Serves as a "key"
     InetAddress forwardingNode;
-    InetAddress address;
     long cost;
 
-    
-    // IPPacket(InetAddress source, InetAddress dest, int messageType, InetAddress address, long cost, String message)
-    
-    // ipAddress = source address
-    // forwardingNode = destination address
-    // address = who we are sending node to
     public Node(InetAddress ipAddress, InetAddress forwardingNode, long cost) {
         this.ipAddress = ipAddress;
         this.forwardingNode = forwardingNode;
@@ -45,7 +38,7 @@ public class Node {
     public void setForwardingNode(InetAddress forwardingNode) {
         this.forwardingNode = forwardingNode;
     }
-    
+
     public long getCost() {
         return cost;
     }
@@ -53,5 +46,11 @@ public class Node {
     public void setCost(long cost) {
         this.cost = cost;
     } 
+
+    @Override
+    public String toString() {
+        return "Node{" + "ipAddress=" + ipAddress + ", forwardingNode=" + forwardingNode + ", cost=" + cost + '}';
+    }
+    
     
 }
